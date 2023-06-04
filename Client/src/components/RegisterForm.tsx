@@ -1,21 +1,20 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
-import { ChangeEvent, FormEvent, ReactNode, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useState } from 'react';
 
-interface FormData {    
+interface FormData {
+    firstname: string,
+    lastname: string,
     username: string,
     password: string
 }
 
-interface LoginFormProps {
-    children?: ReactNode;
-}
-
-function LoginForm () {
+const RegisterForm: React.FC = () => {
   const [status, setStatus] = useState('typing') // 'typing', 'submitting', or 'success'  
   const [person, setPerson] = useState<FormData>({
+    firstname: '',
+    lastname: '',
     username: '',
     password: ''
   });
@@ -23,10 +22,10 @@ function LoginForm () {
   // Event handlers
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setStatus('submitting');
+    setStatus('submitting'); 
     try {
-        const response = await fetch('http://127.0.0.1:80/users', {
-            method: "GET",
+        const response = await fetch('http://localhost:80/users', {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -40,6 +39,20 @@ function LoginForm () {
         setStatus('typing')
         console.log(error)
     }    
+  }
+
+  function handleFirstNameChange(e: ChangeEvent<HTMLInputElement>) {    
+    setPerson({
+        ...person,
+        firstname: e.target.value
+    })
+  }
+
+  function handleLastNameChange(e: ChangeEvent<HTMLInputElement>) {    
+    setPerson({
+        ...person,
+        lastname: e.target.value
+    })
   }
 
   function handleUserNameChange(e: ChangeEvent<HTMLInputElement>) {    
@@ -61,10 +74,24 @@ function LoginForm () {
         <div className='col-12 col-md-8 col-lg-6 col-xl-5 mx-auto'>            
             <Card className='border rounded-3 bg-dark text-white'>
                 <Card.Body className='p-4'>                    
-                    <h2 className="fw-bold mb-2 text-uppercase text-center">Login</h2>
+                    <h2 className="fw-bold mb-2 text-uppercase text-center">Register</h2>
                     <p className="text-white-50 mb-5 text-center">Please provide the required information!</p>    
 
-                    <Form onSubmit={handleSubmit}>                                             
+                    <Form onSubmit={handleSubmit}>
+                        <div className='row'>
+                            <div className='col-12 col-sm-6'>
+                            <Form.Group className="mb-3" controlId="firstname">
+                                <Form.Label>First Name</Form.Label>
+                                <Form.Control type="text" value={person.firstname} onChange={handleFirstNameChange} placeholder="Enter First Name" />        
+                            </Form.Group>
+                            </div>
+                            <div className='col-12 col-sm-6'>
+                            <Form.Group className="mb-3" controlId="lastname">
+                                <Form.Label>Last Name</Form.Label>
+                                <Form.Control type="text" value={person.lastname} onChange={handleLastNameChange} placeholder="Enter Last Name" />        
+                            </Form.Group>
+                            </div>
+                        </div>                                                
                         <Form.Group className="mb-3" controlId="username">
                             <Form.Label>Username</Form.Label>
                             <Form.Control type="text" value={person.username} onChange={handleUserNameChange} placeholder="Enter Username" />
@@ -77,19 +104,17 @@ function LoginForm () {
                         <Button 
                         variant="primary" 
                         type="submit"
-                        disabled={                            
+                        disabled={
+                            person.firstname.length === 0 ||
+                            person.lastname.length === 0 ||
                             person.username.length === 0 ||
                             person.password.length === 0 ||
                             status === 'submitting'
                         }
                         >
-                        {status === 'submitting' ? 'Loading...' : 'Login'}
+                        {status === 'submitting' ? 'Loading...' : 'Submit'}
                         </Button>
-                    </Form>
-                    <div className='mt-3'>          
-                        <p className="mb-0">Don't have an account?<Link to="/register"> <span className='text-white-50 fw-bold'>Sign Up</span></Link></p>
-                        
-                    </div>
+                    </Form>                    
                 </Card.Body>
             </Card>
         </div>
@@ -97,4 +122,4 @@ function LoginForm () {
   );
 }
 
-export default LoginForm;
+export default RegisterForm;
