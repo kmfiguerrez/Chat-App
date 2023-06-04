@@ -103,12 +103,6 @@ app.post('/users/login', async (req: Request, res: Response) => {
     
 })
 
-
-
-// app.listen(PORT, () => {
-//     console.log(`Listening on port${PORT}`);
-// })
-
 server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
