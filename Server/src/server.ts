@@ -8,14 +8,35 @@ import UserModel from './models/user';
 import bcrypt from 'bcrypt';
 import checkUsername from './utils/username';
 
+import http from 'http';
+import { Server, Socket } from 'socket.io';
+
 const app = express();
 const PORT = process.env.PORT;
-
 
 app.use(express.urlencoded({extended: true}));
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors:{
+        origin: "*",        
+    }
+});
+
+// Listen for client connection
+io.on('connection', (socket: Socket) => {
+  console.log('A user connected');
+
+  socket.on("send_message", data => {
+    console.log(data)
+  })
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 
 // Connect to database.
 const db = mongoose.connect(process.env.MONGO_URL_CONNECTION!);
@@ -62,19 +83,19 @@ app.post('/users/login', async (req: Request, res: Response) => {
     try {
         // Check if the user exists
         const user = await UserModel.findOne({ username });
-        console.log(user);
+        
         if (!user) {
         return res.status(401).json({message: "Invalid username or password!"});
         }
 
         // Compare passwords
         const passwordMatch = await bcrypt.compare(password, user.password!);
-        console.log(passwordMatch)
+        
         if (!passwordMatch) {
         return res.status(401).json({message: "Invalid username or password!"});
         }
 
-        res.json({status: 'success'})
+        res.json({message: 'User logged in!'})
     } catch (error) {
         console.log(error)
         res.status(401).json({message: "Invalid username or password!"});
@@ -84,6 +105,10 @@ app.post('/users/login', async (req: Request, res: Response) => {
 
 
 
-app.listen(PORT, () => {
-    console.log(`Listening on port${PORT}`);
-})
+// app.listen(PORT, () => {
+//     console.log(`Listening on port${PORT}`);
+// })
+
+server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+});

@@ -5,26 +5,10 @@ import Chat from "./components/Chat"
 
 
 function App() {
-  const routes = useRoutes([
-    {
-      path: '/',
-      element: <LoginForm />
-    },
-    {
-      path: '/register',
-      element: <RegisterForm />
-    }
-  ])
 
   return (
     <>
       <div className="container">                                    
-        {/* <nav>
-          <ul>
-            <li><Link to="/">Login</Link></li>
-            <li><Link to="/register">Register</Link></li>
-          </ul>
-        </nav>         */}
         <Routes>
           <Route path="/" element={<LoginForm />}></Route>
           <Route path="/register" element={<RegisterForm />}></Route>
