@@ -2,6 +2,8 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import { ChangeEvent, FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import AlertDismissible from './Alert';
 
 interface FormData {
     firstname: string,
@@ -11,18 +13,21 @@ interface FormData {
 }
 
 const RegisterForm: React.FC = () => {
-  const [status, setStatus] = useState('typing') // 'typing', 'submitting', or 'success'  
+  const [status, setStatus] = useState('typing') // 'typing', 'submitting', or 'success' 
+  const [error, setError] = useState<string | null>(null);
   const [person, setPerson] = useState<FormData>({
     firstname: '',
     lastname: '',
     username: '',
     password: ''
   });
+  const navigate = useNavigate();
   
   // Event handlers
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setStatus('submitting'); 
+
     try {
         const response = await fetch('http://localhost:80/users', {
             method: "POST",
@@ -31,13 +36,22 @@ const RegisterForm: React.FC = () => {
             },
             body: JSON.stringify({...person})
         })
-                
+        
         const data = await response.json()
-        setStatus('success')        
+
+        if (response.ok) {
+            console.log(data)        
+            setStatus('success')
+            navigate("/chat")    
+        } else {
+            throw new Error(data.message)
+        }                        
             
-    } catch (error) {
-        setStatus('typing')
-        console.log(error)
+    } catch (error: any) {
+        console.log(error);
+        setStatus('typing');
+        setError(error.message);
+                
     }    
   }
 
@@ -71,11 +85,16 @@ const RegisterForm: React.FC = () => {
   
   return (
     <div className='row border border-primary min-vh-100 align-items-center'>
-        <div className='col-12 col-md-8 col-lg-6 col-xl-5 mx-auto'>            
+        <div className='col-12 col-md-8 col-lg-6 col-xl-5 mx-auto'>
+            
+            {error !== null && 
+                <AlertDismissible variant='danger' message={error}></AlertDismissible>
+            }
+
             <Card className='border rounded-3 bg-dark text-white'>
                 <Card.Body className='p-4'>                    
                     <h2 className="fw-bold mb-2 text-uppercase text-center">Register</h2>
-                    <p className="text-white-50 mb-5 text-center">Please provide the required information!</p>    
+                    <p className="text-white-50 mb-5 text-center">Please provide the required information!</p>                                            
 
                     <Form onSubmit={handleSubmit}>
                         <div className='row'>
@@ -114,7 +133,10 @@ const RegisterForm: React.FC = () => {
                         >
                         {status === 'submitting' ? 'Loading...' : 'Submit'}
                         </Button>
-                    </Form>                    
+                    </Form>
+                    <div className='mt-3 text-center'>          
+                        <p className="mb-0">Already have an account?<Link to="/"> <span className='text-white-50 fw-bold'>Login here</span></Link></p>                        
+                    </div>                  
                 </Card.Body>
             </Card>
         </div>

@@ -5,6 +5,8 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import UserModel from './models/user';
+import bcrypt from 'bcrypt';
+import checkUsername from './utils/username';
 
 const app = express();
 const PORT = process.env.PORT;
@@ -26,18 +28,58 @@ db.then(data => {
 })
 
 // Routes
+// Register User
 app.post("/users", async (req: Request, res: Response) => {
-    const user = req.body
-    const newUser = new UserModel(user)
-    console.log(user)
-    const result = await newUser.save();    
-    res.json({res: "ok"})
+    // Get the body.
+    const user = req.body;
+
+    // Check for existing username.
+    const existingUsername = await checkUsername(user.username.toLowerCase())
+    if (existingUsername) {
+        // Username already exists, send a 409 (Conflict) response
+        return res.status(409).json({ message: 'Username already exists!'});
+    }
+
+    // Hashed password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+        
+    console.log(`hp: ${hashedPassword}`);
+    console.log({...user, password: hashedPassword});
+
+    const newUser = new UserModel({...user, password: hashedPassword})    
+    const result = await newUser.save();
+    console.log('res:')
+    console.log(result)    
+    res.status(200).json({message: "User registered successfully!"})
 })
 
-app.post('/', (req: Request, res: Response) => {
-    const { db, color } = req.body;
-    console.log(db, color)
-    res.send('<p>ay yo!</p>');
+// Login
+app.post('/users/login', async (req: Request, res: Response) => {
+    // Get the body.
+    const { username, password } = req.body;
+
+    try {
+        // Check if the user exists
+        const user = await UserModel.findOne({ username });
+        console.log(user);
+        if (!user) {
+        return res.status(401).json({message: "Invalid username or password!"});
+        }
+
+        // Compare passwords
+        const passwordMatch = await bcrypt.compare(password, user.password!);
+        console.log(passwordMatch)
+        if (!passwordMatch) {
+        return res.status(401).json({message: "Invalid username or password!"});
+        }
+
+        res.json({status: 'success'})
+    } catch (error) {
+        console.log(error)
+        res.status(401).json({message: "Invalid username or password!"});
+    }
+    
 })
 
 
