@@ -7,9 +7,9 @@ import cors from 'cors';
 import UserModel from './models/user';
 import bcrypt from 'bcrypt';
 import checkUsername from './utils/username';
-
 import http from 'http';
 import { Server, Socket } from 'socket.io';
+
 
 const app = express();
 const PORT = process.env.PORT;
