@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { Button, Card, Container, Form, Nav, Navbar } from 'react-bootstrap';
+import { Button, Card, Container, Form, Nav, Navbar, Stack } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
@@ -9,8 +9,7 @@ function Chat() {
     const [message, setMessage] = useState('')
     // const navigate = useNavigate()
 
-    function handleSendMessage(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault();
+    function handleSendMessage() {        
         console.log(message)
         socket.emit("send_message", message)
         setMessage('')
@@ -32,7 +31,7 @@ function Chat() {
                 </Container>
             </Navbar>
 
-            <Card className='mt-3 mb-3 rounded-3 border border-light ' style={{ width: '100%', height: '300px' }}>                
+            <Card className='mt-3 mb-3 rounded-3 border border-dark ' style={{ width: '100%', height: '300px' }}>                
                 <Card.Body>
                     <Card.Title>Messages</Card.Title>
                     <Card.Text>
@@ -41,22 +40,15 @@ function Chat() {
                 </Card.Body>
             </Card>
 
-            <Form onSubmit={handleSendMessage}>
-                <div className='row'>
-                    <div className='col-10'>
-                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">                        
-                        <Form.Control 
-                        type="text" 
-                        placeholder="Enter your message"
-                        value={message}
-                        onChange={handleMessageChange} />                    
-                    </Form.Group>
-                    </div>
-                    <div className='col-2'>
-                        <Button type='submit' >Send</Button>
-                    </div>
-                </div>                                
-            </Form>            
+            <Stack direction="horizontal" gap={3}>
+                <Form.Control 
+                className="me-auto" 
+                placeholder="Enter your message"
+                value={message}
+                onChange={handleMessageChange}
+                />
+                <Button variant="primary" onClick={handleSendMessage}>Send</Button>                 
+            </Stack>
         </>        
     )
 }

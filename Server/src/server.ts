@@ -55,7 +55,7 @@ app.post("/users", async (req: Request, res: Response) => {
     const user = req.body;
 
     // Check for existing username.
-    const existingUsername = await checkUsername(user.username.toLowerCase())
+    const existingUsername = await checkUsername(user.username)
     if (existingUsername) {
         // Username already exists, send a 409 (Conflict) response
         return res.status(409).json({ message: 'Username already exists!'});

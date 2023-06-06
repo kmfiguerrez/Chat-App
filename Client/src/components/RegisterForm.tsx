@@ -84,7 +84,7 @@ const RegisterForm: React.FC = () => {
   }
   
   return (
-    <div className='row border border-primary min-vh-100 align-items-center'>
+    <div className='row min-vh-100 align-items-center'>
         <div className='col-12 col-md-8 col-lg-6 col-xl-5 mx-auto'>
             
             {error !== null && 
