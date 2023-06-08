@@ -4,5 +4,5 @@ interface UserPayload {
     // ... additional properties related to the user
   }
   
-  export default UserPayload;
-  
+
+export default UserPayload;
